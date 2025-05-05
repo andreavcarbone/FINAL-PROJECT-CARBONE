@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Ustedeo and voseo in Dataland</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Andrea V Carbone" />
+    <script src="libs/header-attrs-2.29/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script src="libs/kePrint-0.0.1/kePrint.js"></script>
+    <link href="libs/lightable-0.0.1/lightable.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# Ustedeo and voseo in Dataland
+]
+.subtitle[
+## Study presentation
+]
+.author[
+### Andrea V Carbone
+]
+.institute[
+### Rutgers
+]
+.date[
+### 2025/5/5
+]
+
+---
+
+
+
+
+#slide 2 tidying data
+
+This is the raw data:
+
+```
+## # A tibble: 6 × 5
+##   participant_id   age item     response response_label
+##   &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;         
+## 1 P001              43 formal_1        0 vos           
+## 2 P001              43 formal_2        0 vos           
+## 3 P001              43 formal_3        0 vos           
+## 4 P001              43 formal_4        1 usted         
+## 5 P001              43 formal_5        1 usted         
+## 6 P001              43 formal_6        0 vos
+```
+And this is the tidied data:
+
+```
+## # A tibble: 6 × 5
+##   subject   age setting question response
+##   &lt;fct&gt;   &lt;dbl&gt; &lt;fct&gt;   &lt;fct&gt;    &lt;fct&gt;   
+## 1 P001       43 formal  q1       vos     
+## 2 P001       43 formal  q2       vos     
+## 3 P001       43 formal  q3       vos     
+## 4 P001       43 formal  q4       usted   
+## 5 P001       43 formal  q5       usted   
+## 6 P001       43 formal  q6       vos
+```
+
+```
+## Rows: 1,000
+## Columns: 5
+## $ subject  &lt;fct&gt; P001, P001, P001, P001, P001, P001, P001, P001, P001, P001, P…
+## $ age      &lt;dbl&gt; 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 43, 4…
+## $ setting  &lt;fct&gt; formal, formal, formal, formal, formal, formal, formal, forma…
+## $ question &lt;fct&gt; q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q1, q2, q3, q4, q5, …
+## $ response &lt;fct&gt; vos, vos, vos, usted, usted, vos, usted, vos, usted, vos, ust…
+```
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 1: Effect of Setting
+
+``` r
+model1 &lt;- glm(response ~ setting,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine if there is a relationship between the *setting* and the probability of a speaker choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the setting, and it will also tell us if this relationship is statistically significant based on the data.
+
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 2: Effect of Age
+
+``` r
+model2 &lt;- glm(response ~ age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine if there is a relationship between the speaker's *age* and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change with the speaker's age, and it will also tell us if this relationship is statistically significant based on the data.
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 3: Additive Effects of Setting and Age
+
+``` r
+model3 &lt;- glm(response ~ setting + age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine the relationships between both the *setting* and the speaker's *age* and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the *setting*, and also how they change with the speaker's *age*, assuming these two factors have independent effects. It will also tell us if each of these relationships is statistically significant based on the data.The summary will tell us the relation between *age* end the choice of "usted" while holding the *setting* constant. Similarly it will tell us about the relationship between *setting* and the choice of "usted" while holding *age* constant.
+---
+# Step 2: Build the logistic regression models using glm()
+#Model 4: Interaction Effect of Setting and Age
+
+``` r
+model4 &lt;- glm(response ~ setting * age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This model tests if the effect of *setting* depends on the *age* of the speaker. This code builds a logistic regression model to examine how the *setting* and the speaker's *age* together influence the probability of choosing 'usted'. Unlike Model 3, this model also considers if the effect of the *setting* (formal vs. informal) on the choice of 'usted' is different for speakers of different ages. The model will estimate the individual effects of *setting* and *age*, as well as how their combined effect might change the odds of choosing 'usted'. It will also tell us if these individual and combined relationships are statistically significant. A small p-value suggests that the predictor is statistically significant.
+---
+
+# Step 3: Examine the summary of each model
+
+&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;Summary of Model 1 (Setting)&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p-value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2cm; "&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; -0.1683968 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; 0.0897600 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; -1.876080 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0606443 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2cm; "&gt; settinginformal &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; 0.6664427 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; 0.1286984 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2cm; "&gt; 5.178328 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0000002 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+settinginformal: Estimate 0.666 tells us that odds of having "usted" as an answer increase in an "informal" setting. A z-value above 1.96 suggests that this result did not occur by chance. The very low p-value indicates that *setting* has a statistically significant effect on the odds of having "usted" as an answer.
+
+---
+
+&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;Summary of Logistic Regression Model 2 (Age)&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p-value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 1.2633986 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.1649716 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 7.658281 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; age &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -0.0311633 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.0042788 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -7.283244 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+age: Estimate -0.031 tells us that the odds of having "usted" as an answer decrease as *age* increases. A z-value above 1.96 suggests that this result did not occur by chance. The very low p-value indicates that *age* has a statistically significant effect on the odds of older people not giving "usted" as an answer.
+
+
+---
+
+
+
+&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;Summary of Logistic Regression Model 3 (Setting + Age)&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p-value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.9481258 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.1751619 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 5.412852 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1e-07 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; settinginformal &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.7073754 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.1329729 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 5.319695 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 1e-07 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; age &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -0.0321102 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.0043536 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -7.375622 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0e+00 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Setting + Age: 1 settinginformal: Estimate 0.7071 tells us that even when controlling for *age* odds of having "usted" as an answer increases in an informal *setting*. 2 age Estimate -0.032 tells us that odds of having "usted" as an answer decrease as *age* increases, even controlling for setting. The  low p-values indicate that *age* and *setting* have a statistically significant effect on the odds of older people not giving "usted" as an answer.
+---
+
+&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption&gt;Summary of Logistic Regression Model 4 (Setting * Age)&lt;/caption&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; p-value &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; (Intercept) &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.7462371 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.2277260 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 3.276908 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0010495 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; settinginformal &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 1.1296780 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.3376714 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 3.345495 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0008214 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; age &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -0.0262252 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.0060569 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -4.329784 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.0000149 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;width: 2.5cm; "&gt; settinginformal:age &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -0.0118772 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; 0.0086965 &lt;/td&gt;
+   &lt;td style="text-align:right;width: 2.5cm; "&gt; -1.365745 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1720190 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+Setting interacting with Age: &lt;br&gt;
+1 'settinginformal': The estimate of 1.130 tells us the difference in the odds of choosing 'usted' between the informal and formal *settings* when *age* is zero.&lt;br&gt; 
+2 'age': The estimate of -0.026 tells us the effect of age on the odds of choosing 'usted' in the formal setting.  
+3 'settinginformal:age': The estimate of -0.012 for the interaction term indicates that the effect of *age* on the odds of choosing 'usted' differs between the informal and formal *settings*. Because it is negative, and the *age* estimate is also negative, the negative effect of age is stronger in the informal setting.  
+
+---
+#"Model 1: Effect of Setting"
+
+![](index_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+# "Model 2: Effect of Age"
+
+![](index_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+##  "Model 3: Additive Effects of Setting and Age"
+
+![](index_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+##  "Model 4: Interaction Effect of Setting and Age"
+
+![](index_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+---
+Thank you
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

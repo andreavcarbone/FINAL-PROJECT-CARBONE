@@ -1,0 +1,255 @@
+---
+title: "Ustedeo and voseo in Dataland"
+subtitle: "Study presentation"
+author: "Andrea V Carbone"
+institute: "Rutgers"
+date: "2025/5/5"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Load the necessary libraries
+library(tidyverse)
+library(kableExtra) # for nicer table output
+
+# Load the raw data
+raw_data <- read_csv("../data/raw/binary_outcome_data.csv")
+
+
+```
+
+#slide 2 tidying data
+
+This is the raw data:
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Inspect the first few rows of the data
+head(raw_data)
+```
+And this is the tidied data:
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Tidy the data
+tidied_data <- raw_data %>%
+  rename(subject = participant_id) %>% # Rename participant_id to subject
+  separate(item, into = c("setting", "question"), sep = "_", extra = "merge") %>%
+  mutate(question = paste0("q", str_remove(question, "^[a-z]+"))) %>%
+  mutate(question = as.factor(question)) %>%
+  select(-response) %>%
+  rename(response = response_label) %>% # Rename response_label to response
+  mutate(response = as.factor(response),
+         setting = as.factor(setting),
+         subject = as.factor(subject)) 
+
+# Inspect the tidied data
+head(tidied_data)
+glimpse(tidied_data)
+
+# Save the tidied data
+write_csv(tidied_data, "../data/tidy/tidied_data.csv")
+```
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 1: Effect of Setting
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model1 <- glm(response ~ setting,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine if there is a relationship between the *setting* and the probability of a speaker choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the setting, and it will also tell us if this relationship is statistically significant based on the data.
+
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 2: Effect of Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model2 <- glm(response ~ age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine if there is a relationship between the speaker's *age* and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change with the speaker's age, and it will also tell us if this relationship is statistically significant based on the data.
+---
+# Step 2: Build the logistic regression models using glm()
+
+# Model 3: Additive Effects of Setting and Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model3 <- glm(response ~ setting + age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This code builds a logistic regression model to examine the relationships between both the *setting* and the speaker's *age* and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the *setting*, and also how they change with the speaker's *age*, assuming these two factors have independent effects. It will also tell us if each of these relationships is statistically significant based on the data.The summary will tell us the relation between *age* end the choice of "usted" while holding the *setting* constant. Similarly it will tell us about the relationship between *setting* and the choice of "usted" while holding *age* constant.
+---
+# Step 2: Build the logistic regression models using glm()
+#Model 4: Interaction Effect of Setting and Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model4 <- glm(response ~ setting * age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+This model tests if the effect of *setting* depends on the *age* of the speaker. This code builds a logistic regression model to examine how the *setting* and the speaker's *age* together influence the probability of choosing 'usted'. Unlike Model 3, this model also considers if the effect of the *setting* (formal vs. informal) on the choice of 'usted' is different for speakers of different ages. The model will estimate the individual effects of *setting* and *age*, as well as how their combined effect might change the odds of choosing 'usted'. It will also tell us if these individual and combined relationships are statistically significant. A small p-value suggests that the predictor is statistically significant.
+---
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+library(knitr)
+library(kableExtra)
+```
+# Step 3: Examine the summary of each model
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model1_df <- as.data.frame(summary(model1)$coefficients)
+
+
+colnames(summary_model1_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model1_df))
+
+kable(summary_model1_df, caption = "Summary of Model 1 (Setting)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1:ncol(summary_model1_df), width = "2cm")
+```
+settinginformal: Estimate 0.666 tells us that odds of having "usted" as an answer increase in an "informal" setting. A z-value above 1.96 suggests that this result did not occur by chance. The very low p-value indicates that *setting* has a statistically significant effect on the odds of having "usted" as an answer.
+
+---
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model2_df <- as.data.frame(summary(model2)$coefficients)
+colnames(summary_model2_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model2_df))
+kable(summary_model2_df, caption = "Summary of Logistic Regression Model 2 (Age)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1:ncol(summary_model2_df), width = "2.5cm")
+```
+age: Estimate -0.031 tells us that the odds of having "usted" as an answer decrease as *age* increases. A z-value above 1.96 suggests that this result did not occur by chance. The very low p-value indicates that *age* has a statistically significant effect on the odds of older people not giving "usted" as an answer.
+
+
+---
+
+
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model3_df <- as.data.frame(summary(model3)$coefficients)
+colnames(summary_model3_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model3_df))
+kable(summary_model3_df, caption = "Summary of Logistic Regression Model 3 (Setting + Age)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1:ncol(summary_model3_df), width = "2.5cm") 
+```
+Setting + Age: 1 settinginformal: Estimate 0.7071 tells us that even when controlling for *age* odds of having "usted" as an answer increases in an informal *setting*. 2 age Estimate -0.032 tells us that odds of having "usted" as an answer decrease as *age* increases, even controlling for setting. The  low p-values indicate that *age* and *setting* have a statistically significant effect on the odds of older people not giving "usted" as an answer.
+---
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model4_df <- as.data.frame(summary(model4)$coefficients)
+colnames(summary_model4_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model4_df))
+kable(summary_model4_df, caption = "Summary of Logistic Regression Model 4 (Setting * Age)") %>%
+  kable_styling(bootstrap_options = c("striped", "hover"), full_width = FALSE) %>%
+  column_spec(1:ncol(summary_model4_df), width = "2.5cm")
+```
+Setting interacting with Age: <br>
+1 'settinginformal': The estimate of 1.130 tells us the difference in the odds of choosing 'usted' between the informal and formal *settings* when *age* is zero.<br> 
+2 'age': The estimate of -0.026 tells us the effect of age on the odds of choosing 'usted' in the formal setting.  
+3 'settinginformal:age': The estimate of -0.012 for the interaction term indicates that the effect of *age* on the odds of choosing 'usted' differs between the informal and formal *settings*. Because it is negative, and the *age* estimate is also negative, the negative effect of age is stronger in the informal setting.  
+
+---
+#"Model 1: Effect of Setting"
+
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+predicted_model1 <- tidied_data %>%
+  distinct(setting) %>%
+  mutate(probability = predict(model1, newdata = ., type = "response"))
+
+# 2. Create the plot
+plot_model1 <- ggplot(predicted_model1, aes(x = setting, y = probability)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Setting (Model 1)",
+    x = "Setting",
+    y = "Predicted Probability"
+  ) +
+  theme_minimal() +
+  geom_text(aes(label = round(probability, 2)), vjust = -0.3)
+
+# Print the plot
+print(plot_model1)
+```
+
+---
+# "Model 2: Effect of Age"
+
+```{r echo=FALSE, warnings=FALSE}
+
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model2 <- data.frame(age = seq(age_range[1], age_range[2], length.out = 100))
+predicted_model2$probability <- predict(model2, newdata = predicted_model2, type = "response")
+
+# 2. Create the plot
+plot_model2 <- ggplot(predicted_model2, aes(x = age, y = probability)) +
+  geom_line(color = "darkgreen", linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Age (Model 2)",
+    x = "Age",
+    y = "Predicted Probability"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model2) # Added print()
+```
+
+---
+##  "Model 3: Additive Effects of Setting and Age"
+
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model3 <- expand.grid(
+  setting = unique(tidied_data$setting),
+  age = seq(age_range[1], age_range[2], length.out = 100)
+)
+predicted_model3$probability <- predict(model3, newdata = predicted_model3, type = "response")
+
+# 2. Create the plot
+plot_model3 <- ggplot(predicted_model3, aes(x = age, y = probability, color = setting)) +
+  geom_line(linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Age and Setting (Model 3)",
+    x = "Age",
+    y = "Predicted Probability",
+    color = "Setting"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model3) # Added print()
+```
+
+---
+##  "Model 4: Interaction Effect of Setting and Age"
+
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model4 <- expand.grid(
+  setting = unique(tidied_data$setting),
+  age = seq(age_range[1], age_range[2], length.out = 100)
+)
+predicted_model4$probability <- predict(model4, newdata = predicted_model4, type = "response")
+
+# 2. Create the plot
+plot_model4 <- ggplot(predicted_model4, aes(x = age, y = probability, color = setting)) +
+  geom_line(linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Age and Setting (Model 4)",
+    x = "Age",
+    y = "Predicted Probability",
+    color = "Setting"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model4) # Added print()
+```
+---
+Thank you
+

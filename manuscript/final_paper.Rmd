@@ -1,0 +1,159 @@
+---
+title             : "The title"
+shorttitle        : "Title"
+
+author: 
+  - name          : "First Author"
+    affiliation   : "1"
+    corresponding : yes    # Define only one corresponding author
+    address       : "Postal address"
+    email         : "my@email.com"
+    role: # Contributorship roles (e.g., CRediT, https://credit.niso.org/)
+      - "Conceptualization"
+      - "Writing - Original Draft Preparation"
+      - "Writing - Review & Editing"
+  - name          : "Ernst-August Doelle"
+    affiliation   : "1,2"
+    role:
+      - "Writing - Review & Editing"
+      - "Supervision"
+
+affiliation:
+  - id            : "1"
+    institution   : "Wilhelm-Wundt-University"
+  - id            : "2"
+    institution   : "Konstanz Business School"
+
+authornote: |
+  Add complete departmental affiliations for each author here. Each new line herein must be indented, like this line.
+
+  Enter author note here.
+
+abstract: |
+  One or two sentences providing a **basic introduction** to the field,  comprehensible to a scientist in any discipline.
+  La poblacion de Datalandia alterna el uso de 2 formas de pronombres y subsecuentes conjugaciones para la 2 persona del singular
+  Two to three sentences of **more detailed background**, comprehensible  to scientists in related disciplines.
+  Hay literatura que bla bla
+  One sentence clearly stating the **general problem** being addressed by  this particular study.
+  Vamos a tratar de ver si la seleccion de 2ps depende de la edad de los hablantes o de la situacion o de ambas.
+  One sentence summarizing the main result (with the words "**here we show**" or their equivalent).
+  Two or three sentences explaining what the **main result** reveals in direct comparison to what was thought to be the case previously, or how the  main result adds to previous knowledge.
+  One or two sentences to put the results into a more **general context**.
+  Two or three sentences to provide a **broader perspective**, readily comprehensible to a scientist in any discipline.
+  
+  
+  "The raw dataset consisted of 1000 observations across 5 variables: participant_id, age, item, response, and response_label. Each row represented a single response from one of the 50 participants to one of the 10 questions asked in either a formal or an informal setting.
+
+The participant_id column contained unique identifiers for each speaker (e.g., P001, P002).
+The age column provided the age of each participant as a numeric value.
+The item column was a combined variable containing information about the setting (formal or informal) and the question number (1 to 10), separated by an underscore (e.g., formal_1, informal_7).
+The response column contained a numeric representation of the speaker's choice (0 or 1), where the mapping to "vos" or "usted" was not immediately clear from the column name alone.
+The response_label column provided a clear textual label of the speaker's choice ("vos" or "usted")."
+Decisions Made to Modify the Data (Tidying Process):
+
+To prepare the data for analysis, several tidying steps were undertaken to create a more structured and interpretable dataset. The following decisions were made:
+
+Separating the item Column: The item column contained two distinct pieces of information (setting and question number) that were crucial for the analysis. Therefore, this column was separated into two new columns:
+
+setting: This categorical column now explicitly indicates whether the question was asked in a "formal" or "informal" setting.
+question: This categorical column represents the question number, formatted as "q1", "q2", ..., "q10". This decision was made to ensure that the question number is treated as a categorical variable rather than a numerical one in subsequent analyses.
+Removing the Redundant response Column: The response column contained numerical information that was already clearly represented in the response_label column. To avoid potential confusion and redundancy, the response column was removed from the dataset.
+
+Renaming Columns for Clarity: To improve readability and ease of use, the column names were shortened and made more descriptive:
+
+participant_id was renamed to subject.
+response_label was renamed to response.
+Converting to Factor Variables: To ensure that categorical variables are treated appropriately in statistical modeling, the following columns were converted to factor data types:
+
+subject: As each participant represents a distinct, unordered group.
+setting: Representing the two experimental conditions.
+question: As the question number is treated as a categorical variable.
+response: Representing the two choices ("vos" or "usted").
+
+-------------------
+Goal: To investigate whether the choice between "usted" and "vos" (response variable) is conditioned by the setting (formal/informal) or the age of the speaker, or by a combination of both.
+
+Data:  tidied_data data frame, which now contains the columns subject, age, question, response (as a factor with "vos" and "usted"), and setting (as a factor with "formal" and "informal").
+
+Statistical Model: Logistic Regression
+
+I will build and examine several logistic regression models using the glm() function in R with the binomial(link = "logit") family. We will set "usted" as the reference or "success" outcome for the models, so the models will predict the probability of choosing "usted."
+
+Specific Models to Build and Examine:
+
+Model 1: Effect of Setting
+
+Formula: response ~ setting
+Purpose: To determine if the formality of the setting significantly influences the probability of choosing "usted."
+Model 2: Effect of Age
+
+Formula: response ~ age
+Purpose: To determine if the speaker's age significantly influences the probability of choosing "usted."
+Model 3: Additive Effects of Setting and Age
+
+Formula: response ~ setting + age
+Purpose: To examine the independent effects of both setting and age on the probability of choosing "usted." This model assumes no interaction between setting and age.
+Model 4: Interaction Effect of Setting and Age
+
+Formula: response ~ setting * age (or response ~ setting + age + setting:age)
+Purpose: To investigate if the effect of the setting on the choice of "usted" depends on the speaker's age. This will help us understand if the influence of formality differs for younger and older speakers.
+
+  
+  
+  <!-- https://tinyurl.com/ybremelq -->
+  
+keywords          : "keywords"
+wordcount         : "X"
+
+bibliography      : "r-references.bib"
+
+floatsintext      : no
+linenumbers       : yes
+draft             : no
+mask              : no
+
+figurelist        : no
+tablelist         : no
+footnotelist      : no
+
+classoption       : "man"
+output            : papaja::apa6_word
+---
+
+```{r setup, include = FALSE}
+library("papaja")
+r_refs("r-references.bib")
+```
+
+```{r analysis-preferences}
+# Seed for random number generation
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed)
+```
+
+
+
+# Methods
+We report how we determined our sample size, all data exclusions (if any), all manipulations, and all measures in the study. <!-- 21-word solution (Simmons, Nelson & Simonsohn, 2012; retrieved from http://ssrn.com/abstract=2160588) -->
+
+## Participants
+
+## Material
+
+## Procedure
+
+## Data analysis
+We used `r cite_r("r-references.bib")` for all our analyses.
+
+
+# Results
+
+# Discussion
+
+
+\newpage
+
+# References
+
+::: {#refs custom-style="Bibliography"}
+:::
