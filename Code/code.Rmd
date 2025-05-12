@@ -1,0 +1,223 @@
+---
+title: "Code"
+output: html_document
+date: "2025-05-12"
+---
+
+
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(kableExtra)
+```
+```{r echo=FALSE, include=FALSE, load-and-tidy-data}
+# Load raw data
+raw_data <- read_csv("../data/raw/binary_outcome_data.csv")
+```
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Inspect the first few rows of the data
+library(flextable)
+library(magrittr)  # Ensures %>% is available
+
+head(raw_data) %>%  
+  flextable() %>% 
+  set_caption(caption = "Sample of Raw Data") %>% 
+  autofit()
+
+```
+
+
+
+
+```{r echo=FALSE, warning=FALSE, message=FALSE}
+# Tidy the data
+tidied_data <- raw_data %>%
+  rename(subject = participant_id) %>% # Rename participant_id to subject
+  separate(item, into = c("setting", "question"), sep = "_", extra = "merge") %>%
+  mutate(question = paste0("q", str_remove(question, "^[a-z]+"))) %>%
+  mutate(question = as.factor(question)) %>%
+  select(-response) %>%
+  rename(response = response_label) %>% # Rename response_label to response
+  mutate(response = as.factor(response),
+         setting = as.factor(setting),
+         subject = as.factor(subject)) 
+
+head(tidied_data) %>%  
+  flextable() %>% 
+  set_caption(caption = "Sample of Tidied Data") %>% 
+  autofit()
+
+```
+
+
+
+
+# Model Comparison
+## Model 1: Effect of Setting
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model1 <- glm(I(response == "usted") ~ setting,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+
+```
+
+## Model 2: Effect of Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model2 <- glm(I(response == "usted") ~ age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+
+## Model 3: Additive Effects of Setting and Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model3 <- glm(I(response == "usted") ~ setting + age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+
+## Model 4: Interaction Effect of Setting and Age
+``` {r echo=TRUE, warning=FALSE, message=FALSE}
+model4 <- glm(I(response == "usted") ~ setting * age,
+              family = binomial(link = "logit"),
+              data = tidied_data)
+```
+# Model Results
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model1_df <- as.data.frame(summary(model1)$coefficients)
+
+
+colnames(summary_model1_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model1_df))
+knitr::kable(summary_model1_df, caption = "Summary of Model 1 (Setting)")
+```
+The model in Table 3 shows that the odds of using "usted" are significantly lower in informal settings compared to formal ones. Specifically, being in an informal setting reduces the odds of using "usted" (estimate = -0.67, p < 0.001). The intercept suggests the baseline odds of using "usted" in formal settings.
+Figure 1 displays the predicted probability of ‘usted’ use as a function of setting, based on Model 1.
+
+```{r echo=FALSE, warnings=FALSE}
+
+# 1. Create prediction data
+predicted_model1 <- tidied_data %>%
+  distinct(setting) %>%
+  mutate(probability = predict(model1, newdata = ., type = "response"))
+
+# 2. Create the plot
+plot_model1 <- ggplot(predicted_model1, aes(x = setting, y = probability)) +
+  geom_bar(stat = "identity", fill = "steelblue") +
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Setting",
+    caption= "Figure 1",
+    x = "Setting",
+    y = "Predicted probability (“usted”)"
+  ) +
+  theme_minimal() +
+  geom_text(aes(label = round(probability, 2)), vjust = -0.3)
+
+# Print the plot
+print(plot_model1)
+```
+
+---
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model2_df <- as.data.frame(summary(model2)$coefficients)
+colnames(summary_model2_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model2_df))
+knitr::kable(summary_model2_df, caption = "Summary of Logistic Regression Model 2 (Age)")
+```
+Model 2, in Table 4, shows that age is positively associated with the use of "usted". For each additional year of age, the odds of using "usted" increase (estimate = 0.031, p < 0.001). Older speakers are thus more likely to use "usted" than younger ones.
+Figure 2 shows the predicted probability of ‘usted’ use across the observed range of speaker ages.
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model2 <- data.frame(age = seq(age_range[1], age_range[2], length.out = 100))
+predicted_model2$probability <- predict(model2, newdata = predicted_model2, type = "response")
+
+# 2. Create the plot
+plot_model2 <- ggplot(predicted_model2, aes(x = age, y = probability)) +
+  geom_line(color = "darkgreen", linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Predicted Probability of Choosing 'Usted' by Age",
+    caption= "Figure 2",
+    x = "Age",
+    y = "Predicted Probability (“usted”)"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model2) # Added print()
+```
+---
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model3_df <- as.data.frame(summary(model3)$coefficients)
+colnames(summary_model3_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model3_df))
+knitr::kable(summary_model3_df, caption = "Summary of Logistic Regression Model 3 (Setting + Age)")
+```
+The findings in Model 1 and Model 2 are confirmed in Model 3, as seen in Table 5.Informal settings still significantly reduce the odds of using "usted" (estimate = -0.71, p < 0.001), while age continues to increase the odds (estimate = 0.032, p < 0.001).
+Both setting and age independently contribute to explaining variation in "usted" use.
+Figure 3 presents the additive effects of setting and age on the probability of ‘usted’ use.
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model3 <- expand.grid(
+  setting = unique(tidied_data$setting),
+  age = seq(age_range[1], age_range[2], length.out = 100)
+)
+predicted_model3$probability <- predict(model3, newdata = predicted_model3, type = "response")
+
+# 2. Create the plot
+plot_model3 <- ggplot(predicted_model3, aes(x = age, y = probability, color = setting)) +
+  geom_line(linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Pred. Probability of Choosing 'Usted' by Age and Setting",
+    caption = "Figure 3",
+    x = "Age",
+    y = "Predicted Probability (“usted”)",
+    color = "Setting"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model3) # Added print()
+```
+
+
+
+``` {r echo=FALSE, warning=FALSE, message=FALSE}
+summary_model4_df <- as.data.frame(summary(model4)$coefficients)
+colnames(summary_model4_df) <- gsub("Pr\\(>\\|z\\|\\)", "p-value", colnames(summary_model4_df))
+knitr::kable(summary_model4_df, caption = "Summary of Logistic Regression Model 4 (Setting * Age)")
+```
+  
+The model in Table 6 tests whether the effect of age depends on setting.
+    • The main effects remain: informal settings reduce "usted" use, and age increases it.
+    • The interaction term (settinginformal:age) is not statistically significant (p = 0.17), meaning there's no strong evidence that the effect of age differs between formal and informal settings.
+Figure 4 visualizes the interaction between setting and age, showing predicted probabilities of ‘usted’ use for different combinations of these predictors.
+```{r echo=FALSE, warnings=FALSE}
+# 1. Create prediction data
+age_range <- range(tidied_data$age)
+predicted_model4 <- expand.grid(
+  setting = unique(tidied_data$setting),
+  age = seq(age_range[1], age_range[2], length.out = 100)
+)
+predicted_model4$probability <- predict(model4, newdata = predicted_model4, type = "response")
+
+# 2. Create the plot
+plot_model4 <- ggplot(predicted_model4, aes(x = age, y = probability, color = setting)) +
+  geom_line(linewidth = 1) + # Changed size to linewidth
+  labs(
+    title = "Pred. Probability of Choosing 'Usted' by Age and Setting",
+    caption = "Figure 4",
+    x = "Age",
+    y = "Predicted Probability (“usted”)",
+    color = "Setting"
+  ) +
+  theme_minimal()
+
+# Print the plot
+print(plot_model4) # Added print()
+```
+

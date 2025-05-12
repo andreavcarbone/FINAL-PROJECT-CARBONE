@@ -86,7 +86,7 @@ model1 &lt;- glm(I(response == "usted") ~ setting,
 ??
 This code builds a logistic regression model to examine if there is a relationship between the *setting and the probability of a speaker choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the setting, and it will also tell us if this relationship is statistically significant based on the data.
 
----
+
 # Step 2: Build the logistic regression models using glm()
 
 # Model 2: Effect of Age
@@ -98,7 +98,7 @@ model2 &lt;- glm(I(response == "usted") ~ age,
 ```
 ??
 This code builds a logistic regression model to examine if there is a relationship between the speaker's *age* and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change with the speaker's age, and it will also tell us if this relationship is statistically significant based on the data.
----
+
 # Step 2: Build the logistic regression models using glm()
 
 # Model 3: Additive Effects of Setting and Age
@@ -110,7 +110,7 @@ model3 &lt;- glm(I(response == "usted") ~ setting + age,
 ```
 ??
 This code builds a logistic regression model to examine the relationships between both the setting and the speaker's age and the probability of choosing 'usted'. The model will estimate how the odds of choosing 'usted' change depending on the setting, and also how they change with the speaker's age, assuming these two factors have independent effects. It will also tell us if each of these relationships is statistically significant based on the data.The summary will tell us the relation between *age* end the choice of "usted" while holding the setting constant. Similarl ywill tell us about the relationship between *setting* and the choice of "usted" while holding age constant.
----
+
 # Step 2: Build the logistic regression models using glm()
 #Model 4: Interaction Effect of Setting and Age
 
@@ -125,13 +125,13 @@ This is the most interesting model. It tests if the effect of setting depends on
 This code builds a logistic regression model to examine how the *setting* and the speaker's *age* together influence the probability of choosing 'usted'. Unlike Model 3, this model also considers if the effect of the setting (formal vs. informal) on the choice of 'usted' is different for speakers of different ages. The model will estimate the individual effects of *setting* and *age*, as well as how their combined effect might change the odds of choosing 'usted'. It will also tell us if these individual and combined relationships are statistically significant based on the data. A small p-value (typically less than 0.05) suggests that the predictor (el tipo de valores que elegimos para el eje x) is statistically significant.
 ---
 
-# Step 3: Examine the summary of each model
 
-&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
-&lt;caption&gt;Summary of Model 1 (Setting)&lt;/caption&gt;
+
+&lt;table class="table table-striped table-hover table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Summary of Model 1 (Setting)&lt;/caption&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
@@ -155,15 +155,15 @@ This code builds a logistic regression model to examine how the *setting* and th
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-settinginformal: Estimate 0.666 tells us that odds of having "usted" as an answer increase in an "informal" setting. A z-value above 1.96 suggest that is result didnt occur by chance. The very low p-value indicates that "setting" has a statistically significant effect on the odds of having "usted" as an answer.
 
----
-#
-&lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
-&lt;caption&gt;Summary of Logistic Regression Model 2 (Age)&lt;/caption&gt;
+
+
+
+&lt;table class="table table-striped table-hover table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto; font-size: 10px; width: auto !important; margin-left: auto; margin-right: auto;"&gt;
+&lt;caption style="font-size: initial !important;"&gt;Summary of Logistic Regression Model 2 (Age)&lt;/caption&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
@@ -187,20 +187,13 @@ settinginformal: Estimate 0.666 tells us that odds of having "usted" as an answe
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-age: Estimate -0.031 tells us that odds of having "usted" as an answer decrease as "age" increases. A z-value above 1.96 suggest that is result didnt occur by chance. The very low p-value indicates that "age" has a statistically significant effect on the odds of older people not giving "usted" as an answer.
-#
-
-?? el renglon Intercept es cuando el valor en el eje x es 0, es el starting point del analisis
-El renglon siguiente es el que nos interesa. En ese renglon: Estimate es cuanto estimamos que va a cambiar el valor en el eje y ( la altura) si nos movemos una unidad en el eje x. A z-value far from zero (mas de 1.96) suggests that the observed coefficient is unlikely to have occurred by chance, if there were no real effect.
----
-#
 
 
 &lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
 &lt;caption&gt;Summary of Logistic Regression Model 3 (Setting + Age)&lt;/caption&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
@@ -231,14 +224,11 @@ El renglon siguiente es el que nos interesa. En ese renglon: Estimate es cuanto 
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
-Setting + Age: 1 settinginformal: Estimate 0.7071 tells us that even when controlling for "age" odds of having "usted" as an answer increases in a formal "setting". 2 age Estimate -0.032 tells us that odds of having "usted" as an answer decrease as "age" increases, even controlling for setting. The  low p-values indicates that "age" and "setting" has a statistically significant effect on the odds of older people not giving "usted" as an answer.
----
-#
 &lt;table class="table table-striped table-hover" style="width: auto !important; margin-left: auto; margin-right: auto;"&gt;
 &lt;caption&gt;Summary of Logistic Regression Model 4 (Setting * Age)&lt;/caption&gt;
  &lt;thead&gt;
   &lt;tr&gt;
-   &lt;th style="text-align:left;"&gt;  &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Estimate &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; Std. Error &lt;/th&gt;
    &lt;th style="text-align:right;"&gt; z value &lt;/th&gt;
@@ -284,22 +274,22 @@ Setting + Age: 1 settinginformal: Estimate 0.7071 tells us that even when contro
 ---
 #"Model 1: Effect of Setting"
 
-![](index_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+![](index-una-pagina_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
 
 ---
 # "Model 2: Effect of Age"
 
-![](index_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+![](index-una-pagina_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
 
 ---
 ##  "Model 3: Additive Effects of Setting and Age"
 
-![](index_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+![](index-una-pagina_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
 
 ---
 ##  "Model 4: Interaction Effect of Setting and Age"
 
-![](index_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+![](index-una-pagina_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
 ---
 Thank you
 
@@ -309,7 +299,10 @@ Thank you
 <script>var slideshow = remark.create({
   "highlightStyle": "github",
   "highlightLines": true,
-  "countIncrementalSlides": false
+  "countIncrementalSlides": false,
+  "ratio": "16:9",
+  "slideNumberFormat": "%current%",
+  "css": ["default", "custom.css"]
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));
