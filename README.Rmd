@@ -1,5 +1,0 @@
----
-output: md_document
----
-
-Project info here
